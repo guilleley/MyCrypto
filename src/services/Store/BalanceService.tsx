@@ -2,7 +2,6 @@ import {
   getEtherBalances,
   getTokensBalance,
   getTokenBalances as getTokenBalancesFromEthScan,
-  getTokensBalances,
   BalanceMap as EthScanBalanceMap
 } from '@mycrypto/eth-scan';
 import partition from 'lodash/partition';
@@ -171,7 +170,7 @@ export const getAccountsAssetsBalances = async (accounts: StoreAccount[]) => {
 };
 
 export const getAllTokensBalancesOfAccount = async (account: StoreAccount, assets: Asset[]) => {
-  const provider = account.network.nodes[0];
+  const provider = new ProviderHandler(account.network);
   const assetsInNetwork = assets.filter((x) => x.networkId === account.network.id);
   const assetAddresses = getAssetAddresses(assetsInNetwork) as string[];
 
@@ -180,26 +179,4 @@ export const getAllTokensBalancesOfAccount = async (account: StoreAccount, asset
   } catch (err) {
     throw new Error(err);
   }
-};
-
-export const getAccountsTokenBalance = async (accounts: StoreAccount[], tokenContract: string) => {
-  const provider = accounts[0].network.nodes[0];
-  try {
-    return getTokenBalancesFromEthScan(
-      provider,
-      accounts.map((account) => account.address),
-      tokenContract
-    ).then(toBigNumberJS);
-  } catch (err) {
-    throw new Error(err);
-  }
-};
-
-export const getAccountsTokenBalances = (accounts: StoreAccount[], tokenContracts: string[]) => {
-  const provider = accounts[0].network.nodes[0];
-  return getTokensBalances(
-    provider,
-    accounts.map((account) => account.address),
-    tokenContracts
-  ).then(nestedToBigNumberJS);
 };
